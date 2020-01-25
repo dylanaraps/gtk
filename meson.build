@@ -26,7 +26,6 @@ endif
 glib_req           = '>= @0@.@1@.@2@'.format(glib_major_req, glib_minor_req, glib_micro_req)
 pango_req          = '>= 1.41.0'
 fribidi_req        = '>= 0.19.7'
-atk_req            = '>= 2.15.1'
 cairo_req          = '>= 1.14.0'
 gdk_pixbuf_req     = '>= 2.30.0'
 introspection_req  = '>= 1.39.0'
@@ -443,8 +442,6 @@ pixbuf_dep     = dependency('gdk-pixbuf-2.0', version: gdk_pixbuf_req,
                             fallback : ['gdk-pixbuf', 'gdkpixbuf_dep'])
 epoxy_dep      = dependency('epoxy', version: epoxy_req,
                             fallback: ['libepoxy', 'libepoxy_dep'])
-atk_dep        = dependency('atk', version: atk_req,
-                            fallback : ['atk', 'libatk_dep'])
 
 # Update once Meson can have deps declared in a declarative manner or can
 # find deps properly with CMake again
@@ -453,7 +450,6 @@ xkbdep         = dependency('xkbcommon', version: xkbcommon_req, required: wayla
 iso_codes_dep  = dependency('iso-codes', required: false)
 
 fontconfig_dep = [] # only used in x11 backend
-atkbridge_dep  = [] # only used in x11 backend
 
 if os_win32
   platform_gio_dep = giowin32_dep
@@ -530,8 +526,6 @@ cairo_libs = []
 cdata.set('HAVE_HARFBUZZ', harfbuzz_dep.found() ? 1 : false)
 cdata.set('HAVE_PANGOFT', pangoft_dep.found() ? 1 : false)
 
-atk_pkgs = ['atk']
-
 wayland_pkgs = []
 if wayland_enabled
   wlclientdep    = dependency('wayland-client', version:  wayland_req)
@@ -561,7 +555,6 @@ if x11_enabled
   xfixes_dep     = dependency('xfixes', required: false)
   xcomposite_dep = dependency('xcomposite', required: false)
   fontconfig_dep = dependency('fontconfig', fallback: ['fontconfig', 'fontconfig_dep'])
-  atkbridge_dep  = dependency('atk-bridge-2.0', version: atk_req)
 
   x11_pkgs = ['fontconfig', 'x11', 'xext', 'xi', 'xrandr']
 
@@ -577,8 +570,6 @@ if x11_enabled
   if xdamage_dep.found()
     x11_pkgs += ['xdamage']
   endif
-
-  atk_pkgs += ['atk-bridge-2.0']
 
   cdata.set('HAVE_XDAMAGE', xdamage_dep.found() ? 1 : false)
   cdata.set('HAVE_XCURSOR', xcursor_dep.found() ? 1 : false)
@@ -895,7 +886,6 @@ pkgconf.set('GDK_PRIVATE_PACKAGES',
                      ['fribidi', fribidi_req]))
 
 gtk_packages = ' '.join([
-    atk_dep.name(), atk_req,
     cairo_packages,
     pixbuf_dep.name(), gdk_pixbuf_req,
     'gio-2.0', glib_req,
@@ -905,7 +895,7 @@ pkgconf.set('GTK_PACKAGES', gtk_packages)
 # Requires.private
 pc_gdk_extra_libs += cairo_libs
 
-gtk_private_packages = atk_pkgs + wayland_pkgs + ['epoxy', epoxy_req, 'fribidi', fribidi_req]
+gtk_private_packages = wayland_pkgs + ['epoxy', epoxy_req, 'fribidi', fribidi_req]
 if wayland_enabled or x11_enabled
   gtk_private_packages += ['pangoft2']
 endif

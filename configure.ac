@@ -56,7 +56,6 @@ GLIB_VERSION_CFLAGS="-DGLIB_MIN_REQUIRED_VERSION=glib_min_required_version -DGLI
 
 m4_define([pango_required_version], [1.41.0])
 m4_define([fribidi_required_version], [0.19.7])
-m4_define([atk_required_version], [2.15.1])
 m4_define([cairo_required_version], [1.14.0])
 m4_define([gdk_pixbuf_required_version], [2.30.0])
 m4_define([introspection_required_version], [1.39.0])
@@ -67,14 +66,12 @@ m4_define([cloudproviders_required_version], [0.2.5])
 m4_define([sysprof_required_version], [3.33.2])
 GLIB_REQUIRED_VERSION=glib_required_version
 PANGO_REQUIRED_VERSION=pango_required_version
-ATK_REQUIRED_VERSION=atk_required_version
 CAIRO_REQUIRED_VERSION=cairo_required_version
 GDK_PIXBUF_REQUIRED_VERSION=gdk_pixbuf_required_version
 INTROSPECTION_REQUIRED_VERSION=introspection_required_version
 
 AC_SUBST(GLIB_REQUIRED_VERSION)
 AC_SUBST(PANGO_REQUIRED_VERSION)
-AC_SUBST(ATK_REQUIRED_VERSION)
 AC_SUBST(CAIRO_REQUIRED_VERSION)
 AC_SUBST(GDK_PIXBUF_REQUIRED_VERSION)
 AC_SUBST(INTROSPECTION_REQUIRED_VERSION)
@@ -559,7 +556,6 @@ fi
 ## annoying to construct
 PKG_CHECK_MODULES(BASE_DEPENDENCIES,
   [glib-2.0 >= glib_required_version dnl
-   atk >= atk_required_version dnl
    pango >= pango_required_version dnl
    fribidi >= fribidi_required_version dnl
    cairo >= cairo_required_version dnl
@@ -1360,20 +1356,8 @@ AC_SUBST(GDK_DEP_LIBS)
 AC_SUBST(GDK_DEP_CFLAGS)
 
 
-########################################
-# Check for Accessibility Toolkit flags
-########################################
-
-if test x$enable_x11_backend = xyes; then
-   ATK_PACKAGES="atk atk-bridge-2.0"
-else
-   ATK_PACKAGES="atk"
-fi
-
-PKG_CHECK_MODULES(ATK, $ATK_PACKAGES)
-
-GTK_PACKAGES="atk >= atk_required_version cairo >= cairo_required_version cairo-gobject >= cairo_required_version gdk-pixbuf-2.0 >= gdk_pixbuf_required_version gio-2.0 >= glib_required_version"
-GTK_PRIVATE_PACKAGES="$ATK_PACKAGES $WAYLAND_PACKAGES epoxy >= epoxy_required_version fribidi >= fribidi_required_version"
+GTK_PACKAGES="cairo >= cairo_required_version cairo-gobject >= cairo_required_version gdk-pixbuf-2.0 >= gdk_pixbuf_required_version gio-2.0 >= glib_required_version"
+GTK_PRIVATE_PACKAGES="$WAYLAND_PACKAGES epoxy >= epoxy_required_version fribidi >= fribidi_required_version"
 if test "x$enable_x11_backend" = xyes -o "x$enable_wayland_backend" = xyes; then
   GTK_PRIVATE_PACKAGES="$GTK_PRIVATE_PACKAGES pangoft2"
 fi
@@ -1453,7 +1437,6 @@ fi
 AM_CONDITIONAL(WIN32_GLES, test x"$platform_win32" = xyes -a x"$win32_gles" = xyes)
 
 GLIB_PREFIX="`$PKG_CONFIG --variable=prefix glib-2.0`"
-ATK_PREFIX="`$PKG_CONFIG --variable=prefix atk`"
 PANGO_PREFIX="`$PKG_CONFIG --variable=prefix pango`"
 CAIRO_PREFIX="`$PKG_CONFIG --variable=prefix cairo`"
 ISO_CODES_PREFIX="`$PKG_CONFIG --variable=prefix iso-codes`"
@@ -1467,7 +1450,6 @@ AC_SUBST(GTK_DEP_CFLAGS)
 
 AC_SUBST(X11_PREFIX)
 AC_SUBST(GLIB_PREFIX)
-AC_SUBST(ATK_PREFIX)
 AC_SUBST(PANGO_PREFIX)
 AC_SUBST(CAIRO_PREFIX)
 AC_SUBST(ISO_CODES_PREFIX)

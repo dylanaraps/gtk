@@ -384,9 +384,6 @@ on_scale_button_query_tooltip (GtkWidget  *button,
   GtkAdjustment *adjustment;
   gdouble val;
   gchar *str;
-  AtkImage *image;
-
-  image = ATK_IMAGE (gtk_widget_get_accessible (button));
 
   adjustment = gtk_scale_button_get_adjustment (scale_button);
   val = gtk_scale_button_get_value (scale_button);
@@ -409,7 +406,6 @@ on_scale_button_query_tooltip (GtkWidget  *button,
     }
 
   gtk_tooltip_set_text (tooltip, str);
-  atk_image_set_image_description (image, str);
   g_free (str);
 
   return TRUE;
@@ -1010,14 +1006,14 @@ populate_flowbox (GtkWidget *flowbox)
         {
           g_warning ("%s", error->message);
           g_clear_error (&error);
-          g_free (filename); 
+          g_free (filename);
         }
       else
         {
           bd = g_new (BackgroundData, 1);
           bd->flowbox = flowbox;
           bd->filename = filename;
-          gdk_pixbuf_new_from_stream_at_scale_async (stream, 110, 110, TRUE, NULL, 
+          gdk_pixbuf_new_from_stream_at_scale_async (stream, 110, 110, TRUE, NULL,
                                                      background_loaded_cb, bd);
         }
 
@@ -1792,7 +1788,7 @@ activate (GApplication *app)
   g_object_set_data (G_OBJECT (window), "searchbar", widget);
 
   widget = (GtkWidget *)gtk_builder_get_object (builder, "infobar");
-  g_signal_connect (widget, "response", G_CALLBACK (info_bar_response), NULL); 
+  g_signal_connect (widget, "response", G_CALLBACK (info_bar_response), NULL);
   g_object_set_data (G_OBJECT (window), "infobar", widget);
 
   dialog = (GtkWidget *)gtk_builder_get_object (builder, "info_dialog");
