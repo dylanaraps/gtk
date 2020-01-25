@@ -392,8 +392,6 @@ plane_drag_gesture_end (GtkGestureDrag *gesture,
 static void
 gtk_color_plane_init (GtkColorPlane *plane)
 {
-  AtkObject *atk_obj;
-
   plane->priv = gtk_color_plane_get_instance_private (plane);
 
   gtk_widget_set_can_focus (GTK_WIDGET (plane), TRUE);
@@ -402,13 +400,6 @@ gtk_color_plane_init (GtkColorPlane *plane)
                                              | GDK_BUTTON_PRESS_MASK
                                              | GDK_BUTTON_RELEASE_MASK
                                              | GDK_POINTER_MOTION_MASK);
-
-  atk_obj = gtk_widget_get_accessible (GTK_WIDGET (plane));
-  if (GTK_IS_ACCESSIBLE (atk_obj))
-    {
-      atk_object_set_name (atk_obj, _("Color Plane"));
-      atk_object_set_role (atk_obj, ATK_ROLE_COLOR_CHOOSER);
-    }
 
   plane->priv->drag_gesture = gtk_gesture_drag_new (GTK_WIDGET (plane));
   g_signal_connect (plane->priv->drag_gesture, "drag-begin",

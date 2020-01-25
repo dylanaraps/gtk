@@ -198,9 +198,9 @@ struct _GtkWidget
  *   width-for-height geometry management for a said widget and is the
  *   default return.
  *   It’s important to note (as described below) that any widget
- *   which trades height-for-width or width-for-height must respond properly 
+ *   which trades height-for-width or width-for-height must respond properly
  *   to both of the virtual methods #GtkWidgetClass.get_preferred_height_for_width()
- *   and #GtkWidgetClass.get_preferred_width_for_height() since it might be 
+ *   and #GtkWidgetClass.get_preferred_width_for_height() since it might be
  *   queried in either #GtkSizeRequestMode by its parent container.
  * @get_preferred_height: This is called by containers to obtain the minimum
  *   and natural height of a widget. A widget that does not actually trade
@@ -750,7 +750,7 @@ gboolean   gtk_widget_send_focus_change   (GtkWidget           *widget,
 
 GDK_AVAILABLE_IN_ALL
 gboolean   gtk_widget_activate		     (GtkWidget	       *widget);
-     
+
 GDK_DEPRECATED_IN_3_14
 void	   gtk_widget_reparent		  (GtkWidget	       *widget,
 					   GtkWidget	       *new_parent);
@@ -1191,7 +1191,7 @@ void   gtk_widget_set_composite_name	(GtkWidget	*widget,
 					 const gchar   	*name);
 GDK_DEPRECATED_IN_3_10_FOR(gtk_widget_class_set_template)
 gchar* gtk_widget_get_composite_name	(GtkWidget	*widget);
-     
+
 /* Push/pop pairs, to change default values upon a widget's creation.
  * This will override the values that got set by the
  * gtk_widget_set_default_* () functions.
