@@ -837,7 +837,6 @@ gtk_deps = [
   cairo_dep,
   fontconfig_dep,
   pixbuf_dep,
-  atk_dep,
   epoxy_dep,
   libm,
 ]
@@ -893,8 +892,6 @@ if win32_enabled
            )
   gtk_res = import('windows').compile_resources(gtk_rc)
   gtk_sources += gtk_res
-else
-  gtk_deps += [ atkbridge_dep, ]
 endif
 
 if quartz_enabled
@@ -990,7 +987,7 @@ if build_gir
     gtkversion,
   ]
 
-  gtk_gir_includes = [gdk_gir[0], 'Atk-1.0']
+  gtk_gir_includes = [gdk_gir[0]]
   gtk_gir_extra_args = gir_args + ['-DGTK_COMPILATION',
                                    '--c-include=gtk/gtk-a11y.h']
   if x11_enabled
