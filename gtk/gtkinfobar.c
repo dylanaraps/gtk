@@ -1119,7 +1119,6 @@ gtk_info_bar_set_message_type (GtkInfoBar     *info_bar,
   if (priv->message_type != message_type)
     {
       GtkStyleContext *context;
-      AtkObject *atk_obj;
       const char *type_class[] = {
         GTK_STYLE_CLASS_INFO,
         GTK_STYLE_CLASS_WARNING,
@@ -1136,43 +1135,6 @@ gtk_info_bar_set_message_type (GtkInfoBar     *info_bar,
       priv->message_type = message_type;
 
       gtk_widget_queue_draw (GTK_WIDGET (info_bar));
-
-      atk_obj = gtk_widget_get_accessible (GTK_WIDGET (info_bar));
-      if (GTK_IS_ACCESSIBLE (atk_obj))
-        {
-          const char *name = NULL;
-
-          atk_object_set_role (atk_obj, ATK_ROLE_INFO_BAR);
-
-          switch (message_type)
-            {
-            case GTK_MESSAGE_INFO:
-              name = _("Information");
-              break;
-
-            case GTK_MESSAGE_QUESTION:
-              name = _("Question");
-              break;
-
-            case GTK_MESSAGE_WARNING:
-              name = _("Warning");
-              break;
-
-            case GTK_MESSAGE_ERROR:
-              name = _("Error");
-              break;
-
-            case GTK_MESSAGE_OTHER:
-              break;
-
-            default:
-              g_warning ("Unknown GtkMessageType %u", message_type);
-              break;
-            }
-
-          if (name)
-            atk_object_set_name (atk_obj, name);
-        }
 
       if (type_class[priv->message_type])
         gtk_style_context_add_class (context, type_class[priv->message_type]);
