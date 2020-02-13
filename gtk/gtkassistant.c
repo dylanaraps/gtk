@@ -58,8 +58,6 @@
 
 #include "config.h"
 
-#include <atk/atk.h>
-
 #include "gtkassistant.h"
 
 #include "gtkbutton.h"
@@ -2537,73 +2535,21 @@ typedef GtkWindowAccessibleClass GtkAssistantAccessibleClass;
 G_DEFINE_TYPE (GtkAssistantAccessible, _gtk_assistant_accessible, GTK_TYPE_WINDOW_ACCESSIBLE);
 
 static gint
-gtk_assistant_accessible_get_n_children (AtkObject *accessible)
+gtk_assistant_accessible_get_n_children ()
 {
-  GtkWidget *widget;
-
-  widget = gtk_accessible_get_widget (GTK_ACCESSIBLE (accessible));
-  if (widget == NULL)
     return 0;
-
-  return g_list_length (GTK_ASSISTANT (widget)->priv->pages) + 2;
 }
 
-static AtkObject *
-gtk_assistant_accessible_ref_child (AtkObject *accessible,
+static gint *
+gtk_assistant_accessible_ref_child (),
                                     gint       index)
 {
-  GtkAssistant *assistant;
-  GtkAssistantPrivate *priv;
-  GtkWidget *widget, *child;
-  gint n_pages;
-  AtkObject *obj;
-  const gchar *title;
-
-  widget = gtk_accessible_get_widget (GTK_ACCESSIBLE (accessible));
-  if (widget == NULL)
     return NULL;
-
-  assistant = GTK_ASSISTANT (widget);
-  priv = assistant->priv;
-  n_pages = g_list_length (priv->pages);
-
-  if (index < 0)
-    return NULL;
-  else if (index < n_pages)
-    {
-      GtkAssistantPage *page = g_list_nth_data (priv->pages, index);
-
-      child = page->page;
-      title = gtk_assistant_get_page_title (assistant, child);
-    }
-  else if (index == n_pages)
-    {
-      child = priv->action_area;
-      title = NULL;
-    }
-  else if (index == n_pages + 1)
-    {
-      child = priv->headerbar;
-      title = NULL;
-    }
-  else
-    return NULL;
-
-  obj = gtk_widget_get_accessible (child);
-
-  if (title)
-    atk_object_set_name (obj, title);
-
-  return g_object_ref (obj);
 }
 
 static void
 _gtk_assistant_accessible_class_init (GtkAssistantAccessibleClass *klass)
 {
-  AtkObjectClass *atk_class = ATK_OBJECT_CLASS (klass);
-
-  atk_class->get_n_children = gtk_assistant_accessible_get_n_children;
-  atk_class->ref_child = gtk_assistant_accessible_ref_child;
 }
 
 static void

@@ -27,22 +27,12 @@
 
 
 #include <pango/pangocairo.h>
-#include <atk/atk.h>
 
 G_BEGIN_DECLS
 
 void             _gtk_pango_fill_layout            (cairo_t         *cr,
                                                     PangoLayout     *layout);
 
-
-AtkAttributeSet *_gtk_pango_get_default_attributes (AtkAttributeSet *attributes,
-                                                    PangoLayout     *layout);
-
-AtkAttributeSet *_gtk_pango_get_run_attributes     (AtkAttributeSet *attributes,
-                                                    PangoLayout     *layout,
-                                                    gint             offset,
-                                                    gint            *start_offset,
-                                                    gint            *end_offset);
 
 gint _gtk_pango_move_chars     (PangoLayout  *layout,
                                 gint          offset,
@@ -64,17 +54,14 @@ gboolean _gtk_pango_is_inside_sentence (PangoLayout  *layout,
 
 
 gchar *_gtk_pango_get_text_before (PangoLayout     *layout,
-                                   AtkTextBoundary  boundary_type,
                                    gint             offset,
                                    gint            *start_offset,
                                    gint            *end_offset);
 gchar *_gtk_pango_get_text_at     (PangoLayout     *layout,
-                                   AtkTextBoundary  boundary_type,
                                    gint             offset,
                                    gint            *start_offset,
                                    gint            *end_offset);
 gchar *_gtk_pango_get_text_after  (PangoLayout     *layout,
-                                   AtkTextBoundary  boundary_type,
                                    gint             offset,
                                    gint            *start_offset,
                                    gint            *end_offset);

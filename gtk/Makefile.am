@@ -1561,7 +1561,6 @@ Gtk_3_0_gir_MSVC_FILES =		\
 	gtktypebuiltins.c
 
 Gtk_3_0_gir_MSVC_EXPORT_PACKAGES = $(Gtk_3_0_gir_EXPORT_PACKAGES)
-Gtk_3_0_gir_MSVC_INCLUDE_GIRS = Atk-1.0
 Gtk_3_0_gir_MSVC_LIBS = gtk-3.0 gdk-3.0
 Gtk_3_0_gir_MSVC_CFLAGS = $(GTK_MSVC_GIR_CFLAGS)
 Gtk_3_0_gir_MSVC_SCANNERFLAGS = --warn-all --include-uninstalled='./vs$$$$(VSVER)/$$$$(CFG)/$$$$(PLAT)/bin/Gdk-3.0.gir'
@@ -1624,7 +1623,6 @@ Gtk_3_0_gir_SCANNERFLAGS = 			\
 	--warn-all				\
 	--add-include-path=$(top_builddir)/gdk	\
 	--include-uninstalled=$(top_builddir)/gdk/Gdk-3.0.gir
-Gtk_3_0_gir_INCLUDES = Atk-1.0
 Gtk_3_0_gir_C_INCLUDES = gtk/gtk.h gtk/gtk-a11y.h
 if USE_X11
 Gtk_3_0_gir_SCANNERFLAGS += --add-include-path=$(top_builddir)/gdk/x11

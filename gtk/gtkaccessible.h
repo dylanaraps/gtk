@@ -22,7 +22,6 @@
 #error "Only <gtk/gtk.h> can be included directly."
 #endif
 
-#include <atk/atk.h>
 #include <gtk/gtkwidget.h>
 
 G_BEGIN_DECLS
@@ -40,16 +39,12 @@ typedef struct _GtkAccessibleClass   GtkAccessibleClass;
 
 struct _GtkAccessible
 {
-  AtkObject parent;
-
   /*< private >*/
   GtkAccessiblePrivate *priv;
 };
 
 struct _GtkAccessibleClass
 {
-  AtkObjectClass parent_class;
-
   void (*connect_widget_destroyed) (GtkAccessible *accessible);
 
   void (*widget_set)               (GtkAccessible *accessible);

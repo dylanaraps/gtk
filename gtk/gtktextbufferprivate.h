@@ -35,17 +35,14 @@ void _gtk_text_buffer_notify_will_remove_tag (GtkTextBuffer *buffer,
                                               GtkTextTag    *tag);
 
 void _gtk_text_buffer_get_text_before (GtkTextBuffer   *buffer,
-                                       AtkTextBoundary  boundary_type,
                                        GtkTextIter     *position,
                                        GtkTextIter     *start,
                                        GtkTextIter     *end);
 void _gtk_text_buffer_get_text_at     (GtkTextBuffer   *buffer,
-                                       AtkTextBoundary  boundary_type,
                                        GtkTextIter     *position,
                                        GtkTextIter     *start,
                                        GtkTextIter     *end);
 void _gtk_text_buffer_get_text_after  (GtkTextBuffer   *buffer,
-                                       AtkTextBoundary  boundary_type,
                                        GtkTextIter     *position,
                                        GtkTextIter     *start,
                                        GtkTextIter     *end);

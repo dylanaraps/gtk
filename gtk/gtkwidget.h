@@ -33,7 +33,6 @@
 #include <gtk/gtkaccelgroup.h>
 #include <gtk/gtkborder.h>
 #include <gtk/gtktypes.h>
-#include <atk/atk.h>
 
 G_BEGIN_DECLS
 
@@ -549,8 +548,6 @@ struct _GtkWidgetClass
 
   /* accessibility support
    */
-  AtkObject *  (* get_accessible)     (GtkWidget *widget);
-
   void         (* screen_changed)     (GtkWidget *widget,
                                        GdkScreen *previous_screen);
   gboolean     (* can_activate_accel) (GtkWidget *widget,
@@ -1055,17 +1052,6 @@ gboolean         gtk_widget_get_support_multidevice (GtkWidget      *widget);
 GDK_AVAILABLE_IN_ALL
 void             gtk_widget_set_support_multidevice (GtkWidget      *widget,
                                                      gboolean        support_multidevice);
-
-/* Accessibility support */
-GDK_AVAILABLE_IN_3_2
-void             gtk_widget_class_set_accessible_type    (GtkWidgetClass     *widget_class,
-                                                          GType               type);
-GDK_AVAILABLE_IN_3_2
-void             gtk_widget_class_set_accessible_role    (GtkWidgetClass     *widget_class,
-                                                          AtkRole             role);
-GDK_AVAILABLE_IN_ALL
-AtkObject*       gtk_widget_get_accessible               (GtkWidget          *widget);
-
 
 /* Margin and alignment */
 GDK_AVAILABLE_IN_ALL

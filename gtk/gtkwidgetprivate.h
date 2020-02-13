@@ -158,8 +158,6 @@ struct _GtkWidgetPrivate
   GtkWidget *parent;
 
   GList *event_controllers;
-
-  AtkObject *accessible;
 };
 
 GtkCssNode *  gtk_widget_get_css_node       (GtkWidget *widget);
@@ -212,8 +210,6 @@ gboolean _gtk_widget_has_baseline_support (GtkWidget *widget);
 
 const gchar*      _gtk_widget_get_accel_path               (GtkWidget *widget,
                                                             gboolean  *locked);
-
-AtkObject *       _gtk_widget_peek_accessible              (GtkWidget *widget);
 
 void              _gtk_widget_set_has_default              (GtkWidget *widget,
                                                             gboolean   has_default);
