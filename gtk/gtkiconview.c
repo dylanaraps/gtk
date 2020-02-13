@@ -2125,19 +2125,6 @@ static void
 gtk_icon_view_item_selected_changed (GtkIconView      *icon_view,
                                      GtkIconViewItem  *item)
 {
-  AtkObject *obj;
-  AtkObject *item_obj;
-
-  obj = gtk_widget_get_accessible (GTK_WIDGET (icon_view));
-  if (obj != NULL)
-    {
-      item_obj = atk_object_ref_accessible_child (obj, item->index);
-      if (item_obj != NULL)
-        {
-          atk_object_notify_state_change (item_obj, ATK_STATE_SELECTED, item->selected);
-          g_object_unref (item_obj);
-        }
-    }
 }
 
 static void
@@ -3238,10 +3225,6 @@ _gtk_icon_view_set_cursor_item (GtkIconView     *icon_view,
                                 GtkIconViewItem *item,
                                 GtkCellRenderer *cursor_cell)
 {
-  AtkObject *obj;
-  AtkObject *item_obj;
-  AtkObject *cursor_item_obj;
-
   /* When hitting this path from keynav, the focus cell is
    * already set, we dont need to notify the atk object
    * but we still need to queue the draw here (in the case
@@ -3257,12 +3240,6 @@ _gtk_icon_view_set_cursor_item (GtkIconView     *icon_view,
   if (icon_view->priv->cursor_item != NULL)
     {
       gtk_icon_view_queue_draw_item (icon_view, icon_view->priv->cursor_item);
-      if (obj != NULL)
-        {
-          cursor_item_obj = atk_object_ref_accessible_child (obj, icon_view->priv->cursor_item->index);
-          if (cursor_item_obj != NULL)
-            atk_object_notify_state_change (cursor_item_obj, ATK_STATE_FOCUSED, FALSE);
-        }
     }
   icon_view->priv->cursor_item = item;
 
@@ -3273,18 +3250,6 @@ _gtk_icon_view_set_cursor_item (GtkIconView     *icon_view,
       /* Make sure there is a cell in focus initially */
       if (!gtk_cell_area_get_focus_cell (icon_view->priv->cell_area))
 	gtk_cell_area_focus (icon_view->priv->cell_area, GTK_DIR_TAB_FORWARD);
-    }
-  
-  /* Notify that accessible focus object has changed */
-  item_obj = atk_object_ref_accessible_child (obj, item->index);
-
-  if (item_obj != NULL)
-    {
-      G_GNUC_BEGIN_IGNORE_DEPRECATIONS;
-      atk_focus_tracker_notify (item_obj);
-      G_GNUC_END_IGNORE_DEPRECATIONS;
-      atk_object_notify_state_change (item_obj, ATK_STATE_FOCUSED, TRUE);
-      g_object_unref (item_obj); 
     }
 }
 

@@ -344,7 +344,6 @@ add_palette (GtkColorChooserWidget  *cc,
 {
   GtkWidget *grid;
   GtkWidget *p;
-  AtkObject *atk_obj;
   gint line, pos;
   gint i;
   gint left, right;
@@ -373,22 +372,6 @@ add_palette (GtkColorChooserWidget  *cc,
   for (i = 0; i < n_colors; i++)
     {
       p = gtk_color_swatch_new ();
-      atk_obj = gtk_widget_get_accessible (p);
-      if (names)
-        {
-          atk_object_set_name (atk_obj,
-                               g_dpgettext2 (GETTEXT_PACKAGE, "Color name", names[i]));
-        }
-      else
-        {
-          gchar *text, *name;
-
-          name = accessible_color_name (&colors[i]);
-          text = g_strdup_printf (_("Color: %s"), name);
-          atk_object_set_name (atk_obj, text);
-          g_free (text);
-          g_free (name);
-        }
       gtk_color_swatch_set_rgba (GTK_COLOR_SWATCH (p), &colors[i]);
       connect_swatch_signals (p, cc);
 
@@ -522,7 +505,6 @@ gtk_color_chooser_widget_init (GtkColorChooserWidget *cc)
   GVariant *variant;
   GVariantIter iter;
   gboolean selected;
-  AtkObject *atk_obj;
   gchar *text, *name;
 
   cc->priv = gtk_color_chooser_widget_get_instance_private (cc);
@@ -546,9 +528,6 @@ gtk_color_chooser_widget_init (GtkColorChooserWidget *cc)
 
   cc->priv->button = button = gtk_color_swatch_new ();
   gtk_widget_set_name (button, "add-color-button");
-  atk_obj = gtk_widget_get_accessible (button);
-  atk_object_set_name (atk_obj, _("Custom color"));
-  atk_object_set_description (atk_obj, _("Create a custom color"));
   connect_button_signals (button, cc);
   gtk_color_swatch_set_icon (GTK_COLOR_SWATCH (button), "list-add-symbolic");
   gtk_color_swatch_set_selectable (GTK_COLOR_SWATCH (button), FALSE);
@@ -565,10 +544,8 @@ gtk_color_chooser_widget_init (GtkColorChooserWidget *cc)
       p = gtk_color_swatch_new ();
       gtk_color_swatch_set_rgba (GTK_COLOR_SWATCH (p), &color);
       gtk_color_swatch_set_can_drop (GTK_COLOR_SWATCH (p), TRUE);
-      atk_obj = gtk_widget_get_accessible (p);
       name = accessible_color_name (&color);
       text = g_strdup_printf (_("Custom color %d: %s"), i, name);
-      atk_object_set_name (atk_obj, text);
       g_free (text);
       g_free (name);
       connect_custom_signals (p, cc);

@@ -234,121 +234,6 @@ _gtk_pango_fill_layout (cairo_t     *cr,
     cairo_move_to (cr, current_x, current_y);
 }
 
-static AtkAttributeSet *
-add_attribute (AtkAttributeSet  *attributes,
-               AtkTextAttribute  attr,
-               const gchar      *value)
-{
-  AtkAttribute *at;
-
-  at = g_new (AtkAttribute, 1);
-  at->name = g_strdup (atk_text_attribute_get_name (attr));
-  at->value = g_strdup (value);
-
-  return g_slist_prepend (attributes, at);
-}
-
-/*
- * _gtk_pango_get_default_attributes:
- * @attributes: a #AtkAttributeSet to add the attributes to
- * @layout: the #PangoLayout from which to get attributes
- *
- * Adds the default text attributes from @layout to @attributes,
- * after translating them from Pango attributes to ATK attributes.
- *
- * This is a convenience function that can be used to implement
- * support for the #AtkText interface in widgets using Pango
- * layouts.
- *
- * Returns: the modified @attributes
- */
-AtkAttributeSet*
-_gtk_pango_get_default_attributes (AtkAttributeSet *attributes,
-                                   PangoLayout     *layout)
-{
-  PangoContext *context;
-  gint i;
-  PangoWrapMode mode;
-
-  context = pango_layout_get_context (layout);
-  if (context)
-    {
-      PangoLanguage *language;
-      PangoFontDescription *font;
-
-      language = pango_context_get_language (context);
-      if (language)
-        attributes = add_attribute (attributes, ATK_TEXT_ATTR_LANGUAGE,
-                         pango_language_to_string (language));
-
-      font = pango_context_get_font_description (context);
-      if (font)
-        {
-          gchar buf[60];
-          attributes = add_attribute (attributes, ATK_TEXT_ATTR_STYLE,
-                           atk_text_attribute_get_value (ATK_TEXT_ATTR_STYLE,
-                                 pango_font_description_get_style (font)));
-          attributes = add_attribute (attributes, ATK_TEXT_ATTR_VARIANT,
-                           atk_text_attribute_get_value (ATK_TEXT_ATTR_VARIANT,
-                                 pango_font_description_get_variant (font)));
-          attributes = add_attribute (attributes, ATK_TEXT_ATTR_STRETCH,
-                           atk_text_attribute_get_value (ATK_TEXT_ATTR_STRETCH,
-                                 pango_font_description_get_stretch (font)));
-          attributes = add_attribute (attributes, ATK_TEXT_ATTR_FAMILY_NAME,
-                           pango_font_description_get_family (font));
-          g_snprintf (buf, 60, "%d", pango_font_description_get_weight (font));
-          attributes = add_attribute (attributes, ATK_TEXT_ATTR_WEIGHT, buf);
-          g_snprintf (buf, 60, "%i", pango_font_description_get_size (font) / PANGO_SCALE);
-          attributes = add_attribute (attributes, ATK_TEXT_ATTR_SIZE, buf);
-        }
-    }
-  if (pango_layout_get_justify (layout))
-    {
-      i = 3;
-    }
-  else
-    {
-      PangoAlignment align;
-
-      align = pango_layout_get_alignment (layout);
-      if (align == PANGO_ALIGN_LEFT)
-        i = 0;
-      else if (align == PANGO_ALIGN_CENTER)
-        i = 2;
-      else   /* PANGO_ALIGN_RIGHT */
-        i = 1;
-    }
-  attributes = add_attribute (attributes, ATK_TEXT_ATTR_JUSTIFICATION,
-                   atk_text_attribute_get_value (ATK_TEXT_ATTR_JUSTIFICATION, i));
-  mode = pango_layout_get_wrap (layout);
-  if (mode == PANGO_WRAP_WORD)
-    i = 2;
-  else   /* PANGO_WRAP_CHAR */
-    i = 1;
-  attributes = add_attribute (attributes, ATK_TEXT_ATTR_WRAP_MODE,
-                   atk_text_attribute_get_value (ATK_TEXT_ATTR_WRAP_MODE, i));
-
-  attributes = add_attribute (attributes, ATK_TEXT_ATTR_STRIKETHROUGH,
-                   atk_text_attribute_get_value (ATK_TEXT_ATTR_STRIKETHROUGH, 0));
-  attributes = add_attribute (attributes, ATK_TEXT_ATTR_UNDERLINE,
-                   atk_text_attribute_get_value (ATK_TEXT_ATTR_UNDERLINE, 0));
-  attributes = add_attribute (attributes, ATK_TEXT_ATTR_RISE, "0");
-  attributes = add_attribute (attributes, ATK_TEXT_ATTR_SCALE, "1");
-  attributes = add_attribute (attributes, ATK_TEXT_ATTR_BG_FULL_HEIGHT, "0");
-  attributes = add_attribute (attributes, ATK_TEXT_ATTR_PIXELS_INSIDE_WRAP, "0");
-  attributes = add_attribute (attributes, ATK_TEXT_ATTR_PIXELS_BELOW_LINES, "0");
-  attributes = add_attribute (attributes, ATK_TEXT_ATTR_PIXELS_ABOVE_LINES, "0");
-  attributes = add_attribute (attributes, ATK_TEXT_ATTR_EDITABLE,
-                   atk_text_attribute_get_value (ATK_TEXT_ATTR_EDITABLE, 0));
-  attributes = add_attribute (attributes, ATK_TEXT_ATTR_INVISIBLE,
-                   atk_text_attribute_get_value (ATK_TEXT_ATTR_INVISIBLE, 0));
-  attributes = add_attribute (attributes, ATK_TEXT_ATTR_INDENT, "0");
-  attributes = add_attribute (attributes, ATK_TEXT_ATTR_RIGHT_MARGIN, "0");
-  attributes = add_attribute (attributes, ATK_TEXT_ATTR_LEFT_MARGIN, "0");
-
-  return attributes;
-}
-
 /*
  * _gtk_pango_get_run_attributes:
  * @attributes: a #AtkAttributeSet to add attributes to
@@ -395,136 +280,8 @@ _gtk_pango_get_run_attributes (AtkAttributeSet *attributes,
   text = pango_layout_get_text (layout);
   len = g_utf8_strlen (text, -1);
 
-  /* Grab the attributes of the PangoLayout, if any */
-  attr = pango_layout_get_attributes (layout);
-
-  if (attr == NULL)
-    {
-      *start_offset = 0;
-      *end_offset = len;
-      return attributes;
-    }
-
-  iter = pango_attr_list_get_iterator (attr);
-  /* Get invariant range offsets */
-  /* If offset out of range, set offset in range */
-  if (offset > len)
-    offset = len;
-  else if (offset < 0)
-    offset = 0;
-
-  index = g_utf8_offset_to_pointer (text, offset) - text;
-  pango_attr_iterator_range (iter, &start_index, &end_index);
-  is_next = TRUE;
-  while (is_next)
-    {
-      if (index >= start_index && index < end_index)
-        {
-          *start_offset = g_utf8_pointer_to_offset (text, text + start_index);
-          if (end_index == G_MAXINT) /* Last iterator */
-            end_index = len;
-
-          *end_offset = g_utf8_pointer_to_offset (text, text + end_index);
-          break;
-        }
-      is_next = pango_attr_iterator_next (iter);
-      pango_attr_iterator_range (iter, &start_index, &end_index);
-    }
-
-  /* Get attributes */
-  pango_string = (PangoAttrString*) pango_attr_iterator_get (iter, PANGO_ATTR_FAMILY);
-  if (pango_string != NULL)
-    {
-      value = g_strdup_printf ("%s", pango_string->value);
-      attributes = add_attribute (attributes, ATK_TEXT_ATTR_FAMILY_NAME, value);
-      g_free (value);
-    }
-  pango_int = (PangoAttrInt*) pango_attr_iterator_get (iter, PANGO_ATTR_STYLE);
-  if (pango_int != NULL)
-    {
-      attributes = add_attribute (attributes, ATK_TEXT_ATTR_STYLE,
-                       atk_text_attribute_get_value (ATK_TEXT_ATTR_STYLE, pango_int->value));
-    }
-  pango_int = (PangoAttrInt*) pango_attr_iterator_get (iter, PANGO_ATTR_WEIGHT);
-  if (pango_int != NULL)
-    {
-      value = g_strdup_printf ("%i", pango_int->value);
-      attributes = add_attribute (attributes, ATK_TEXT_ATTR_WEIGHT, value);
-      g_free (value);
-    }
-  pango_int = (PangoAttrInt*) pango_attr_iterator_get (iter, PANGO_ATTR_VARIANT);
-  if (pango_int != NULL)
-    {
-      attributes = add_attribute (attributes, ATK_TEXT_ATTR_VARIANT,
-                       atk_text_attribute_get_value (ATK_TEXT_ATTR_VARIANT, pango_int->value));
-    }
-  pango_int = (PangoAttrInt*) pango_attr_iterator_get (iter, PANGO_ATTR_STRETCH);
-  if (pango_int != NULL)
-    {
-      attributes = add_attribute (attributes, ATK_TEXT_ATTR_STRETCH,
-                       atk_text_attribute_get_value (ATK_TEXT_ATTR_STRETCH, pango_int->value));
-    }
-  pango_int = (PangoAttrInt*) pango_attr_iterator_get (iter, PANGO_ATTR_SIZE);
-  if (pango_int != NULL)
-    {
-      value = g_strdup_printf ("%i", pango_int->value / PANGO_SCALE);
-      attributes = add_attribute (attributes, ATK_TEXT_ATTR_SIZE, value);
-      g_free (value);
-    }
-  pango_int = (PangoAttrInt*) pango_attr_iterator_get (iter, PANGO_ATTR_UNDERLINE);
-  if (pango_int != NULL)
-    {
-      attributes = add_attribute (attributes, ATK_TEXT_ATTR_UNDERLINE,
-                       atk_text_attribute_get_value (ATK_TEXT_ATTR_UNDERLINE, pango_int->value));
-    }
-  pango_int = (PangoAttrInt*) pango_attr_iterator_get (iter, PANGO_ATTR_STRIKETHROUGH);
-  if (pango_int != NULL)
-    {
-      attributes = add_attribute (attributes, ATK_TEXT_ATTR_STRIKETHROUGH,
-                       atk_text_attribute_get_value (ATK_TEXT_ATTR_STRIKETHROUGH, pango_int->value));
-    }
-  pango_int = (PangoAttrInt*) pango_attr_iterator_get (iter, PANGO_ATTR_RISE);
-  if (pango_int != NULL)
-    {
-      value = g_strdup_printf ("%i", pango_int->value);
-      attributes = add_attribute (attributes, ATK_TEXT_ATTR_RISE, value);
-      g_free (value);
-    }
-  pango_lang = (PangoAttrLanguage*) pango_attr_iterator_get (iter, PANGO_ATTR_LANGUAGE);
-  if (pango_lang != NULL)
-    {
-      attributes = add_attribute (attributes, ATK_TEXT_ATTR_LANGUAGE,
-                                  pango_language_to_string (pango_lang->value));
-    }
-  pango_float = (PangoAttrFloat*) pango_attr_iterator_get (iter, PANGO_ATTR_SCALE);
-  if (pango_float != NULL)
-    {
-      value = g_strdup_printf ("%g", pango_float->value);
-      attributes = add_attribute (attributes, ATK_TEXT_ATTR_SCALE, value);
-      g_free (value);
-    }
-  pango_color = (PangoAttrColor*) pango_attr_iterator_get (iter, PANGO_ATTR_FOREGROUND);
-  if (pango_color != NULL)
-    {
-      value = g_strdup_printf ("%u,%u,%u",
-                               pango_color->color.red,
-                               pango_color->color.green,
-                               pango_color->color.blue);
-      attributes = add_attribute (attributes, ATK_TEXT_ATTR_FG_COLOR, value);
-      g_free (value);
-    }
-  pango_color = (PangoAttrColor*) pango_attr_iterator_get (iter, PANGO_ATTR_BACKGROUND);
-  if (pango_color != NULL)
-    {
-      value = g_strdup_printf ("%u,%u,%u",
-                               pango_color->color.red,
-                               pango_color->color.green,
-                               pango_color->color.blue);
-      attributes = add_attribute (attributes, ATK_TEXT_ATTR_BG_COLOR, value);
-      g_free (value);
-    }
-  pango_attr_iterator_destroy (iter);
-
+  *start_offset = 0;
+  *end_offset = len;
   return attributes;
 }
 
@@ -821,17 +578,6 @@ pango_layout_get_line_before (PangoLayout     *layout,
             {
               switch (boundary_type)
                 {
-                case ATK_TEXT_BOUNDARY_LINE_START:
-                  end_index = start_index;
-                  start_index = prev_line->start_index;
-                  break;
-                case ATK_TEXT_BOUNDARY_LINE_END:
-                  if (prev_prev_line)
-                    start_index = prev_prev_line->start_index + prev_prev_line->length;
-                  else
-                    start_index = 0;
-                  end_index = prev_line->start_index + prev_line->length;
-                  break;
                 default:
                   g_assert_not_reached();
                 }
@@ -886,14 +632,6 @@ pango_layout_get_line_at (PangoLayout     *layout,
           /* Found line for offset */
           switch (boundary_type)
             {
-            case ATK_TEXT_BOUNDARY_LINE_START:
-              if (pango_layout_iter_next_line (iter))
-                end_index = pango_layout_iter_get_line (iter)->start_index;
-              break;
-            case ATK_TEXT_BOUNDARY_LINE_END:
-              if (prev_line)
-                start_index = prev_line->start_index + prev_line->length;
-              break;
             default:
               g_assert_not_reached();
             }
@@ -947,17 +685,6 @@ pango_layout_get_line_after (PangoLayout     *layout,
               line = pango_layout_iter_get_line (iter);
               switch (boundary_type)
                 {
-                case ATK_TEXT_BOUNDARY_LINE_START:
-                  start_index = line->start_index;
-                  if (pango_layout_iter_next_line (iter))
-                    end_index = pango_layout_iter_get_line (iter)->start_index;
-                  else
-                    end_index = start_index + line->length;
-                  break;
-                case ATK_TEXT_BOUNDARY_LINE_END:
-                  start_index = end_index;
-                  end_index = line->start_index + line->length;
-                  break;
                 default:
                   g_assert_not_reached();
                 }
@@ -1026,57 +753,6 @@ _gtk_pango_get_text_before (PangoLayout     *layout,
 
   start = offset;
   end = start;
-
-  switch (boundary_type)
-    {
-    case ATK_TEXT_BOUNDARY_CHAR:
-      start = _gtk_pango_move_chars (layout, start, -1);
-      break;
-
-    case ATK_TEXT_BOUNDARY_WORD_START:
-      if (!attrs[start].is_word_start)
-        start = _gtk_pango_move_words (layout, start, -1);
-      end = start;
-      start = _gtk_pango_move_words (layout, start, -1);
-      break;
-
-    case ATK_TEXT_BOUNDARY_WORD_END:
-      if (_gtk_pango_is_inside_word (layout, start) &&
-          !attrs[start].is_word_start)
-        start = _gtk_pango_move_words (layout, start, -1);
-      while (!attrs[start].is_word_end && start > 0)
-        start = _gtk_pango_move_chars (layout, start, -1);
-      end = start;
-      start = _gtk_pango_move_words (layout, start, -1);
-      while (!attrs[start].is_word_end && start > 0)
-        start = _gtk_pango_move_chars (layout, start, -1);
-      break;
-
-    case ATK_TEXT_BOUNDARY_SENTENCE_START:
-      if (!attrs[start].is_sentence_start)
-        start = _gtk_pango_move_sentences (layout, start, -1);
-      end = start;
-      start = _gtk_pango_move_sentences (layout, start, -1);
-      break;
-
-    case ATK_TEXT_BOUNDARY_SENTENCE_END:
-      if (_gtk_pango_is_inside_sentence (layout, start) &&
-          !attrs[start].is_sentence_start)
-        start = _gtk_pango_move_sentences (layout, start, -1);
-      while (!attrs[start].is_sentence_end && start > 0)
-        start = _gtk_pango_move_chars (layout, start, -1);
-      end = start;
-      start = _gtk_pango_move_sentences (layout, start, -1);
-      while (!attrs[start].is_sentence_end && start > 0)
-        start = _gtk_pango_move_chars (layout, start, -1);
-      break;
-
-    case ATK_TEXT_BOUNDARY_LINE_START:
-    case ATK_TEXT_BOUNDARY_LINE_END:
-      pango_layout_get_line_before (layout, boundary_type, offset, &start, &end);
-      break;
-    }
-
   *start_offset = start;
   *end_offset = end;
 
@@ -1127,63 +803,6 @@ _gtk_pango_get_text_after (PangoLayout     *layout,
 
   start = offset;
   end = start;
-
-  switch (boundary_type)
-    {
-    case ATK_TEXT_BOUNDARY_CHAR:
-      start = _gtk_pango_move_chars (layout, start, 1);
-      end = start;
-      end = _gtk_pango_move_chars (layout, end, 1);
-      break;
-
-    case ATK_TEXT_BOUNDARY_WORD_START:
-      if (_gtk_pango_is_inside_word (layout, end))
-        end = _gtk_pango_move_words (layout, end, 1);
-      while (!attrs[end].is_word_start && end < n_attrs - 1)
-        end = _gtk_pango_move_chars (layout, end, 1);
-      start = end;
-      if (end < n_attrs - 1)
-        {
-          end = _gtk_pango_move_words (layout, end, 1);
-          while (!attrs[end].is_word_start && end < n_attrs - 1)
-            end = _gtk_pango_move_chars (layout, end, 1);
-        }
-      break;
-
-    case ATK_TEXT_BOUNDARY_WORD_END:
-      end = _gtk_pango_move_words (layout, end, 1);
-      start = end;
-      if (end < n_attrs - 1)
-        end = _gtk_pango_move_words (layout, end, 1);
-      break;
-
-    case ATK_TEXT_BOUNDARY_SENTENCE_START:
-      if (_gtk_pango_is_inside_sentence (layout, end))
-        end = _gtk_pango_move_sentences (layout, end, 1);
-      while (!attrs[end].is_sentence_start && end < n_attrs - 1)
-        end = _gtk_pango_move_chars (layout, end, 1);
-      start = end;
-      if (end < n_attrs - 1)
-        {
-          end = _gtk_pango_move_sentences (layout, end, 1);
-          while (!attrs[end].is_sentence_start && end < n_attrs - 1)
-            end = _gtk_pango_move_chars (layout, end, 1);
-        }
-      break;
-
-    case ATK_TEXT_BOUNDARY_SENTENCE_END:
-      end = _gtk_pango_move_sentences (layout, end, 1);
-      start = end;
-      if (end < n_attrs - 1)
-        end = _gtk_pango_move_sentences (layout, end, 1);
-      break;
-
-    case ATK_TEXT_BOUNDARY_LINE_START:
-    case ATK_TEXT_BOUNDARY_LINE_END:
-      pango_layout_get_line_after (layout, boundary_type, offset, &start, &end);
-      break;
-    }
-
   *start_offset = start;
   *end_offset = end;
 
@@ -1234,55 +853,6 @@ _gtk_pango_get_text_at (PangoLayout     *layout,
 
   start = offset;
   end = start;
-
-  switch (boundary_type)
-    {
-    case ATK_TEXT_BOUNDARY_CHAR:
-      end = _gtk_pango_move_chars (layout, end, 1);
-      break;
-
-    case ATK_TEXT_BOUNDARY_WORD_START:
-      if (!attrs[start].is_word_start)
-        start = _gtk_pango_move_words (layout, start, -1);
-      if (_gtk_pango_is_inside_word (layout, end))
-        end = _gtk_pango_move_words (layout, end, 1);
-      while (!attrs[end].is_word_start && end < n_attrs - 1)
-        end = _gtk_pango_move_chars (layout, end, 1);
-      break;
-
-    case ATK_TEXT_BOUNDARY_WORD_END:
-      if (_gtk_pango_is_inside_word (layout, start) &&
-          !attrs[start].is_word_start)
-        start = _gtk_pango_move_words (layout, start, -1);
-      while (!attrs[start].is_word_end && start > 0)
-        start = _gtk_pango_move_chars (layout, start, -1);
-      end = _gtk_pango_move_words (layout, end, 1);
-      break;
-
-    case ATK_TEXT_BOUNDARY_SENTENCE_START:
-      if (!attrs[start].is_sentence_start)
-        start = _gtk_pango_move_sentences (layout, start, -1);
-      if (_gtk_pango_is_inside_sentence (layout, end))
-        end = _gtk_pango_move_sentences (layout, end, 1);
-      while (!attrs[end].is_sentence_start && end < n_attrs - 1)
-        end = _gtk_pango_move_chars (layout, end, 1);
-      break;
-
-    case ATK_TEXT_BOUNDARY_SENTENCE_END:
-      if (_gtk_pango_is_inside_sentence (layout, start) &&
-          !attrs[start].is_sentence_start)
-        start = _gtk_pango_move_sentences (layout, start, -1);
-      while (!attrs[start].is_sentence_end && start > 0)
-        start = _gtk_pango_move_chars (layout, start, -1);
-      end = _gtk_pango_move_sentences (layout, end, 1);
-      break;
-
-    case ATK_TEXT_BOUNDARY_LINE_START:
-    case ATK_TEXT_BOUNDARY_LINE_END:
-      pango_layout_get_line_at (layout, boundary_type, offset, &start, &end);
-      break;
-    }
-
   *start_offset = start;
   *end_offset = end;
 

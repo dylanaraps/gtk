@@ -94,35 +94,23 @@ static void
 gtk_model_menu_item_set_action_role (GtkModelMenuItem       *item,
                                      GtkMenuTrackerItemRole  role)
 {
-  AtkObject *accessible;
-  AtkRole a11y_role;
-
   if (role == item->role)
     return;
 
   gtk_check_menu_item_set_draw_as_radio (GTK_CHECK_MENU_ITEM (item), role == GTK_MENU_TRACKER_ITEM_ROLE_RADIO);
   gtk_model_menu_item_set_has_indicator (item, role != GTK_MENU_TRACKER_ITEM_ROLE_NORMAL);
 
-  accessible = gtk_widget_get_accessible (GTK_WIDGET (item));
   switch (role)
     {
     case GTK_MENU_TRACKER_ITEM_ROLE_NORMAL:
-      a11y_role = ATK_ROLE_MENU_ITEM;
-      break;
-
     case GTK_MENU_TRACKER_ITEM_ROLE_CHECK:
-      a11y_role = ATK_ROLE_CHECK_MENU_ITEM;
-      break;
-
     case GTK_MENU_TRACKER_ITEM_ROLE_RADIO:
-      a11y_role = ATK_ROLE_RADIO_MENU_ITEM;
       break;
 
     default:
       g_assert_not_reached ();
     }
 
-  atk_object_set_role (accessible, a11y_role);
   g_object_notify (G_OBJECT (item), "action-role");
 }
 
@@ -499,8 +487,6 @@ gtk_model_menu_item_class_init (GtkModelMenuItemClass *class)
   g_object_class_install_property (object_class, PROP_ACCEL,
                                    g_param_spec_string ("accel", "accel", "accel", NULL,
                                                         G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | G_PARAM_EXPLICIT_NOTIFY));
-
-  gtk_widget_class_set_accessible_role (GTK_WIDGET_CLASS (class), ATK_ROLE_MENU_ITEM);
 }
 
 GtkWidget *

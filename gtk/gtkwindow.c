@@ -1269,7 +1269,6 @@ gtk_window_class_init (GtkWindowClass *klass)
   add_tab_bindings (binding_set, GDK_SHIFT_MASK, GTK_DIR_TAB_BACKWARD);
   add_tab_bindings (binding_set, GDK_CONTROL_MASK | GDK_SHIFT_MASK, GTK_DIR_TAB_BACKWARD);
 
-  gtk_widget_class_set_accessible_type (widget_class, GTK_TYPE_WINDOW_ACCESSIBLE);
   gtk_widget_class_set_css_name (widget_class, "window");
 }
 
@@ -12471,7 +12470,6 @@ _gtk_window_add_popover (GtkWindow *window,
 {
   GtkWindowPrivate *priv;
   GtkWindowPopover *data;
-  AtkObject *accessible;
 
   g_return_if_fail (GTK_IS_WINDOW (window));
   g_return_if_fail (GTK_IS_WIDGET (popover));
@@ -12495,9 +12493,6 @@ _gtk_window_add_popover (GtkWindow *window,
 
   gtk_widget_set_parent (popover, GTK_WIDGET (window));
 
-  accessible = gtk_widget_get_accessible (GTK_WIDGET (window));
-  _gtk_container_accessible_add_child (GTK_CONTAINER_ACCESSIBLE (accessible),
-                                       gtk_widget_get_accessible (popover), -1);
 }
 
 void
@@ -12506,7 +12501,6 @@ _gtk_window_remove_popover (GtkWindow *window,
 {
   GtkWindowPrivate *priv;
   GtkWindowPopover *data;
-  AtkObject *accessible;
 
   g_return_if_fail (GTK_IS_WINDOW (window));
   g_return_if_fail (GTK_IS_WIDGET (popover));
@@ -12528,9 +12522,6 @@ _gtk_window_remove_popover (GtkWindow *window,
 
   priv->popovers = g_list_remove (priv->popovers, data);
 
-  accessible = gtk_widget_get_accessible (GTK_WIDGET (window));
-  _gtk_container_accessible_remove_child (GTK_CONTAINER_ACCESSIBLE (accessible),
-                                          gtk_widget_get_accessible (popover), -1);
   popover_destroy (data);
   g_object_unref (popover);
 }
