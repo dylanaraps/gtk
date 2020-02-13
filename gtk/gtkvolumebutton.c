@@ -183,10 +183,6 @@ gtk_volume_button_init (GtkVolumeButton *button)
   GtkWidget *widget = GTK_WIDGET (button);
 
   gtk_widget_init_template (widget);
-
-  /* The atk action description is not supported by GtkBuilder */
-  atk_action_set_description (ATK_ACTION (gtk_widget_get_accessible (GTK_WIDGET (widget))),
-			      1, _("Adjusts the volume"));
 }
 
 /**
@@ -220,9 +216,6 @@ cb_query_tooltip (GtkWidget  *button,
   GtkAdjustment *adjustment;
   gdouble val;
   char *str;
-  AtkImage *image;
-
-  image = ATK_IMAGE (gtk_widget_get_accessible (button));
 
   adjustment = gtk_scale_button_get_adjustment (scale_button);
   val = gtk_scale_button_get_value (scale_button);
@@ -250,7 +243,6 @@ cb_query_tooltip (GtkWidget  *button,
     }
 
   gtk_tooltip_set_text (tooltip, str);
-  atk_image_set_image_description (image, str);
   g_free (str);
 
   return TRUE;
